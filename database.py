@@ -1,72 +1,52 @@
-import os
-
-from dotenv import load_dotenv
-from sqlalchemy.orm import sessionmaker
-from google.cloud.sql.connector import Connector, IPTypes
-from sqlalchemy import text
-import pg8000
-
-import sqlalchemy
+import psycopg2
 
 
-# 加载环境变量
-load_dotenv()
-
-def connect() -> sqlalchemy.engine.base.Engine:
-    instance_connection_name = os.environ[
-        "INSTANCE_CONNECTION_NAME"
-    ]
-    db_user = os.environ["DB_USER"]
-    db_pass = os.environ["DB_PASS"]
-    db_name = os.environ["DB_NAME"]
-
-    ip_type = IPTypes.PRIVATE if os.environ.get("PRIVATE_IP") else IPTypes.PUBLIC
-
-    connector = Connector()
-
-    def getconn() -> pg8000.dbapi.Connection:
-        conn: pg8000.dbapi.Connection = connector.connect(
-            instance_connection_name,
-            "pg8000",
-            user=db_user,
-            password=db_pass,
-            db=db_name,
-            ip_type=ip_type,
-        )
-        return conn
-
-    pool = sqlalchemy.create_engine(
-        "postgresql+pg8000://",
-        creator=getconn,
-        # ...
+def connect():
+    return psycopg2.connect(
+        dbname="mydb",
+        user="postgres",
+        password="jia893607219",
+        host="localhost",
+        port="5432"
     )
-    return pool
-
-
-# Create a configured "Session" class
-engine = connect()
-Session = sessionmaker(bind=engine)
 
 
 def execute_query(query, params=()):
-    session = Session()
-    try:
-        session.execute(text(query), params)
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        print(f"Error occurred: {e}")
-    finally:
-        session.close()
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+    conn.commit()
+    conn.close()
 
 
 def fetch_query(query, params=()):
-    session = Session()
-    try:
-        result = session.execute(text(query), params)
-        return result.fetchall()
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        return []
-    finally:
-        session.close()
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def create_tables():
+    execute_query('''
+        CREATE TABLE IF NOT EXISTS Toppings (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) UNIQUE NOT NULL
+        )
+    ''')
+    execute_query('''
+        CREATE TABLE IF NOT EXISTS Pizzas (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) UNIQUE NOT NULL
+        )
+    ''')
+    execute_query('''
+        CREATE TABLE IF NOT EXISTS PizzaToppings (
+            pizza_id INTEGER,
+            topping_id INTEGER,
+            FOREIGN KEY (pizza_id) REFERENCES Pizzas(id),
+            FOREIGN KEY (topping_id) REFERENCES Toppings(id),
+            UNIQUE (pizza_id, topping_id)
+        )
+    ''')
