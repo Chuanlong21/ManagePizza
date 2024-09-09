@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from models import list_toppings, add_topping, delete_topping, update_topping
 from models import list_pizzas, add_pizza, delete_pizza, update_pizza, update_pizza_toppings
-from database import create_tables
 from dotenv import load_dotenv
+import os
 
-# load_dotenv()
-# create_tables()
+load_dotenv()
 
 app = Flask(__name__)
+
+app.secret_key = os.urandom(24)
 
 
 @app.route('/')
