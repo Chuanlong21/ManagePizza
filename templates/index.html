@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pizza Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Pizza Store Management</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('manage_toppings') }}">Manage Toppings</a></li>
+            <li><a href="{{ url_for('manage_pizzas') }}">Manage Pizzas</a></li>
+        </ul>
+    </nav>
+</body>
+</html>

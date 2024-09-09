@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Pizzas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Pizzas</h1>
+        <form method="POST" class="form-group">
+            <div class="input-group">
+                <label for="name">Pizza Name:</label>
+                <input type="text" name="name" placeholder="Enter pizza name" required>
+            </div>
+            <div class="input-group">
+                <button type="submit" name="action" value="add" class="btn">Add</button>
+                <button type="submit" name="action" value="delete" class="btn">Delete</button>
+                <button type="submit" name="action" value="update" class="btn">Update</button>
+                <input type="text" name="new_name" placeholder="New Name for Update">
+                <button type="submit" name="action" value="update_toppings" class="btn">Update Toppings</button>
+            </div>
+            <div class="input-group">
+                <label for="toppings">Select Toppings:</label>
+                <select name="toppings" multiple>
+                    {% for topping in toppings %}
+                        <option value="{{ topping[1] }}">{{ topping[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <h2>Existing Pizzas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pizza Name</th>
+                    <th>Toppings</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pizza in pizzas %}
+                    <tr>
+                        <td>{{ pizza[0] }}</td>
+                        <td>{{ pizza[1] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('index') }}">Back to Home</a>
+    </div>
+</body>
+</html>
